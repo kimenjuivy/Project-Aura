@@ -1,11 +1,4 @@
-USE elearning_db;
-
-
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE modules;
-SET FOREIGN_KEY_CHECKS = 1;
-
-
+USE railway;
 INSERT INTO modules (course_id, module_number, title, description, learning_objectives, order_index) VALUES
 (1, 1, 'Week 1: Introduction to Psychology', 'Overview of psychology as a science and its major perspectives', 'Understand what psychology is and its historical development', 1),
 (1, 2, 'Week 2: Research Methods', 'Scientific methods used in psychological research', 'Learn about experiments, surveys, and observational studies', 2),

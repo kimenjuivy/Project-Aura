@@ -1,9 +1,4 @@
-USE elearning_db;
-
--- ============================================
--- INSERT SAMPLE DATA
--- ============================================
-
+USE railway;
 -- Insert Instructors
 INSERT INTO users (username, email, password_hash, full_name, role, bio) VALUES
 ('sarah_smith', 'sarah.smith@elearning.edu', 'hashed_password_1', 'Dr. Sarah Smith', 'instructor', 'PhD in Psychology with 15 years of teaching and published research on cognitive development.'),

@@ -1,10 +1,4 @@
--- ============================================
--- E-LEARNING PLATFORM DATABASE SCHEMA
--- ============================================
-
-USE elearning_db;
-
--- Users Table (Students & Instructors)
+USE railway;
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,

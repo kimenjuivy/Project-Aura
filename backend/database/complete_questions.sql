@@ -1,9 +1,12 @@
-USE elearning_db;
+USE railway;
+
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE student_answers;
+
 TRUNCATE TABLE answer_options;
 TRUNCATE TABLE questions;
+
 SET FOREIGN_KEY_CHECKS = 1;
+
 
 INSERT INTO questions (quiz_id, question_text, question_type, points, order_index, explanation) VALUES
 (1, 'What is psychology primarily defined as?', 'multiple_choice', 1.00, 1, 'Psychology is the scientific study of behavior and mental processes.'),
@@ -993,8 +996,7 @@ INSERT INTO answer_options (question_id, option_text, is_correct, order_index) V
 INSERT INTO questions (quiz_id, question_text, question_type, points, order_index, explanation) VALUES
 (20, 'What is the primary goal of operations management?', 'multiple_choice', 1.00, 1, 'Operations management focuses on efficiently converting inputs into outputs to create goods and services.'),
 (20, 'Which production process is characterized by high volume and low variety?', 'multiple_choice', 1.00, 2, 'Mass production involves high volumes of standardized products with limited variety.'),
-(20, 'What does JIT stand for in operations management?', 'multiple_
-choice', 1.00, 3, 'JIT stands for Just-In-Time, an inventory strategy that minimizes stock by receiving goods only as needed.'),
+(20, 'What does JIT stand for in operations management?', 'multiple_choice', 1.00, 3, 'JIT stands for Just-In-Time, an inventory strategy that minimizes stock by receiving goods only as needed.'),
 (20, 'Quality control and quality assurance refer to the same process in operations.', 'true_false', 1.00, 4, 'False. Quality control focuses on detecting defects in finished products, while quality assurance focuses on preventing defects throughout the process.'),
 (20, 'What is the purpose of supply chain management?', 'multiple_choice', 1.00, 5, 'Supply chain management coordinates the flow of materials, information, and finances from supplier to customer.'),
 (20, 'Which quality management approach focuses on continuous improvement?', 'multiple_choice', 1.00, 6, 'Kaizen is the Japanese philosophy of continuous improvement involving all employees.'),
@@ -1246,10 +1248,6 @@ INSERT INTO answer_options (question_id, option_text, is_correct, order_index) V
 (239, 'Financial statement', FALSE, 4),
 (240, 'True', FALSE, 1),
 (240, 'False', TRUE, 2);
-
-
-USE elearning_db;
-
 -- ============================================
 -- COURSE 4: MICROECONOMICS
 -- ============================================
@@ -1666,8 +1664,6 @@ INSERT INTO answer_options (question_id, option_text, is_correct, order_index) V
 (319, 'Subsidies', FALSE, 4),
 (320, 'True', FALSE, 1),
 (320, 'False', TRUE, 2);
-
-USE elearning_db;
 
 -- ============================================
 -- COURSE 5: PERSONAL FINANCE

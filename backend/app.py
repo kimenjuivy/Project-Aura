@@ -13,6 +13,10 @@ def create_app(config_name='development'):
    
     # Load configuration
     app.config.from_object(config[config_name])
+
+    # Set SECRET_KEY from environment variable
+    import os
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     
     # Initialize extensions
     db.init_app(app)

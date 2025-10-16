@@ -1,8 +1,4 @@
-USE elearning_db;
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE resources;
-SET FOREIGN_KEY_CHECKS = 1;
-
+USE railway;
 INSERT INTO resources (module_id, resource_type, title, description, file_url, duration_minutes, order_index, is_mandatory) VALUES
 (1, 'video', 'Week 1 - Introduction to Psychology (MIT Lecture)', 'MIT OpenCourseWare introduction lecture by Prof. John Gabrieli.', 'https://www.youtube.com/watch?v=2fbrl6WoIyo', 50, 1, TRUE),
 (1, 'pdf', 'Week 1 - OpenStax Psychology Chapter 1 PDF', 'Chapter 1: Introduction to Psychology (OpenStax textbook).', 'https://openstax.org/books/psychology-2e/pages/1-introduction', 30, 2, TRUE),

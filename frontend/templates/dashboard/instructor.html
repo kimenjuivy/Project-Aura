@@ -1,0 +1,1397 @@
+{% extends "base.html" %}
+
+{% block title %}Instructor Dashboard - E-Learning Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ============================================
+   INSTRUCTOR DASHBOARD - MAGICAL STYLES
+   ============================================ */
+
+:root {
+    --primary-blue: #2563eb;
+    --primary-blue-light: #3b82f6;
+    --primary-blue-dark: #1e40af;
+    --secondary-blue: #60a5fa;
+    --accent-blue: #93c5fd;
+    --white: #ffffff;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --info: #3b82f6;
+}
+
+/* ============================================
+   DASHBOARD CONTAINER
+   ============================================ */
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-container::before {
+    content: '';
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(147, 197, 253, 0.25) 0%, transparent 70%);
+    top: -300px;
+    left: -200px;
+    animation: floatOrb 30s infinite ease-in-out;
+    border-radius: 50%;
+}
+
+.dashboard-container::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, transparent 70%);
+    bottom: -200px;
+    right: -250px;
+    animation: floatOrb 25s infinite ease-in-out reverse;
+    border-radius: 50%;
+}
+
+@keyframes floatOrb {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(60px, -60px) scale(1.1);
+    }
+    66% {
+        transform: translate(-40px, 40px) scale(0.9);
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================
+   DASHBOARD HEADER
+   ============================================ */
+.dashboard-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 8px 32px 0 rgba(31, 38, 135, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.18);
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, 
+        var(--primary-blue), 
+        var(--secondary-blue), 
+        var(--accent-blue),
+        var(--secondary-blue),
+        var(--primary-blue)
+    );
+    background-size: 200% 100%;
+    animation: shimmer 4s infinite;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+}
+
+.dashboard-header p {
+    color: var(--gray-600);
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+/* ============================================
+   QUICK ACTIONS
+   ============================================ */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.action-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-decoration: none;
+    color: var(--gray-900);
+    box-shadow: 
+        0 8px 32px 0 rgba(31, 38, 135, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.18);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.action-card:nth-child(1) { animation-delay: 0.1s; }
+.action-card:nth-child(2) { animation-delay: 0.2s; }
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 20px 40px 0 rgba(37, 99, 235, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.action-card:hover::before {
+    opacity: 0.08;
+}
+
+.action-card i {
+    font-size: 2.5rem;
+    color: var(--primary-blue);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.action-card:hover i {
+    transform: scale(1.2) rotate(10deg);
+    color: var(--primary-blue-dark);
+}
+
+.action-card span {
+    font-size: 1.125rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================
+   DASHBOARD SECTION
+   ============================================ */
+.dashboard-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 8px 32px 0 rgba(31, 38, 135, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.18);
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-section h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 2rem 0;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.dashboard-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue));
+    border-radius: 2px;
+}
+
+/* ============================================
+   INSTRUCTOR COURSES GRID
+   ============================================ */
+.instructor-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+}
+
+.instructor-course-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: cardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    position: relative;
+}
+
+.instructor-course-card:nth-child(1) { animation-delay: 0.1s; }
+.instructor-course-card:nth-child(2) { animation-delay: 0.2s; }
+.instructor-course-card:nth-child(3) { animation-delay: 0.3s; }
+.instructor-course-card:nth-child(4) { animation-delay: 0.4s; }
+.instructor-course-card:nth-child(5) { animation-delay: 0.5s; }
+.instructor-course-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.instructor-course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.instructor-course-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 50px rgba(37, 99, 235, 0.25);
+}
+
+.instructor-course-card:hover::before {
+    transform: scaleX(1);
+}
+
+.course-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+    border-bottom: 2px solid var(--gray-100);
+}
+
+.course-header h3 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+}
+
+.course-code {
+    color: var(--primary-blue);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   COURSE STATS GRID
+   ============================================ */
+.course-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--gray-50);
+}
+
+.stat-box {
+    text-align: center;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 2px solid transparent;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+}
+
+.stat-box i {
+    font-size: 1.75rem;
+    color: var(--primary-blue);
+    margin-bottom: 0.75rem;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.stat-box:hover i {
+    transform: scale(1.2);
+}
+
+.stat-box strong {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.25rem;
+}
+
+.stat-box span {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* ============================================
+   COURSE META
+   ============================================ */
+.course-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+}
+
+.course-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.course-meta i {
+    color: var(--primary-blue);
+    font-size: 1rem;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.813rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+/* ============================================
+   COURSE ACTIONS
+   ============================================ */
+.course-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-top: 2px solid var(--gray-100);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.938rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    flex: 1;
+}
+
+.btn-secondary:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn i {
+    font-size: 1rem;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.empty-state i {
+    font-size: 6rem;
+    color: var(--gray-300);
+    margin-bottom: 2rem;
+    display: block;
+    animation: floatIcon 4s infinite ease-in-out;
+}
+
+@keyframes floatIcon {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.empty-state h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin: 0 0 1rem 0;
+}
+
+.empty-state p {
+    color: var(--gray-600);
+    font-size: 1.125rem;
+    margin: 0 0 2.5rem 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 24px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content h2 {
+    color: var(--gray-900);
+    margin: 0 0 1.5rem 0;
+    font-size: 1.75rem;
+}
+
+.modal-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-stat-box {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.modal-stat-box:hover {
+    background: var(--gray-100);
+    transform: translateY(-3px);
+}
+
+.modal-stat-box .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.modal-stat-box .label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+.toast {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: white;
+    padding: 1.25rem 1.75rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 400px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-success {
+    border-left: 5px solid var(--success);
+}
+
+.toast-danger {
+    border-left: 5px solid var(--error);
+}
+
+.toast-info {
+    border-left: 5px solid var(--info);
+}
+
+/* ============================================
+   FLOATING PARTICLES
+   ============================================ */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: floatParticle 20s infinite ease-in-out;
+}
+
+@keyframes floatParticle {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   RIPPLE EFFECT
+   ============================================ */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: rippleEffect 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleEffect {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.loading {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .instructor-courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .dashboard-section {
+        padding: 1.5rem;
+    }
+
+    .modal-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 1rem 0;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .action-card {
+        padding: 1.5rem;
+    }
+
+    .course-header {
+        padding: 1.5rem;
+    }
+
+    .toast {
+        left: 1rem;
+        right: 1rem;
+        top: 1rem;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="dashboard-header">
+            <h1>Instructor Dashboard</h1>
+            <p>Welcome, {{ current_user.full_name }}!</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{{ url_for('course.create_course') }}" class="action-card">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create New Course</span>
+            </a>
+            <a href="{{ url_for('course.browse_courses') }}" class="action-card">
+                <i class="fas fa-search"></i>
+                <span>Browse All Courses</span>
+            </a>
+        </div>
+
+        <!-- My Courses -->
+        <div class="dashboard-section">
+            <h2>My Courses</h2>
+
+            {% if course_stats %}
+                <div class="instructor-courses-grid">
+                    {% for stat in course_stats %}
+                        {% set course = stat.course %}
+                        <div class="instructor-course-card">
+                            <div class="course-header">
+                                <h3>{{ course.title }}</h3>
+                                <span class="course-code">{{ course.course_code }}</span>
+                            </div>
+
+                            <div class="course-stats-grid">
+                                <div class="stat-box">
+                                    <i class="fas fa-users"></i>
+                                    <strong>{{ stat.total_enrollments }}</strong>
+                                    <span>Total Students</span>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fas fa-user-check"></i>
+                                    <strong>{{ stat.active_students }}</strong>
+                                    <span>Active</span>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>{{ stat.completed_students }}</strong>
+                                    <span>Completed</span>
+                                </div>
+                            </div>
+
+                            <div class="course-meta">
+                                <span><i class="fas fa-layer-group"></i> {{ course.category }}</span>
+                                <span><i class="fas fa-signal"></i> {{ course.difficulty_level }}</span>
+                                <span>
+                                    {% if course.is_published %}
+                                        <span class="badge badge-success">Published</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Draft</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="course-actions">
+                                <a href="{{ url_for('course.course_detail', course_id=course.course_id) }}" 
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Course
+                                </a>
+                                <button class="btn btn-secondary btn-sm" 
+                                        onclick="viewCourseStats({{ course.course_id }})">
+                                    <i class="fas fa-chart-bar"></i> Statistics
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>No Courses Yet</h3>
+                    <p>Start creating courses to share your knowledge with students!</p>
+                    <a href="{{ url_for('course.create_course') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Your First Course
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================
+// INSTRUCTOR DASHBOARD - MAGICAL JAVASCRIPT
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    initInstructorDashboard();
+});
+
+// ============================================
+// INITIALIZE DASHBOARD
+// ============================================
+function initInstructorDashboard() {
+    createFloatingParticles();
+    animatePageElements();
+    animateStatBoxes();
+    initButtonEffects();
+    initCardHovers();
+    initTooltips();
+}
+
+// ============================================
+// CREATE FLOATING PARTICLES
+// ============================================
+function createFloatingParticles() {
+    const container = document.querySelector('.dashboard-container');
+    if (!container) return;
+    
+    let particlesContainer = document.querySelector('.particles-container');
+    if (!particlesContainer) {
+        particlesContainer = document.createElement('div');
+        particlesContainer.className = 'particles-container';
+        container.appendChild(particlesContainer);
+    }
+    
+    const particleCount = 25;
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 6 + 3;
+        const left = Math.random() * 100;
+        const animationDuration = Math.random() * 15 + 15;
+        const animationDelay = Math.random() * 10;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.animationDuration = `${animationDuration}s`;
+        particle.style.animationDelay = `${animationDelay}s`;
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// ============================================
+// ANIMATE PAGE ELEMENTS
+// ============================================
+function animatePageElements() {
+    const elements = document.querySelectorAll('.dashboard-section, .quick-actions, .dashboard-header');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    elements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// ============================================
+// ANIMATE STAT BOXES
+// ============================================
+function animateStatBoxes() {
+    const statBoxes = document.querySelectorAll('.stat-box strong');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const stat = entry.target;
+                const finalValue = parseInt(stat.textContent);
+                
+                if (!isNaN(finalValue)) {
+                    let currentValue = 0;
+                    const increment = finalValue / 40;
+                    const duration = 1200;
+                    const stepTime = duration / 40;
+                    
+                    const counter = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            stat.textContent = finalValue;
+                            clearInterval(counter);
+                        } else {
+                            stat.textContent = Math.floor(currentValue);
+                        }
+                    }, stepTime);
+                }
+                
+                observer.unobserve(stat);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    statBoxes.forEach(box => observer.observe(box));
+}
+
+// ============================================
+// BUTTON RIPPLE EFFECTS
+// ============================================
+function initButtonEffects() {
+    const buttons = document.querySelectorAll('.btn, .action-card');
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+}
+
+// ============================================
+// CARD HOVER EFFECTS
+// ============================================
+function initCardHovers() {
+    const cards = document.querySelectorAll('.instructor-course-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+}
+
+// ============================================
+// INIT TOOLTIPS
+// ============================================
+function initTooltips() {
+    const badges = document.querySelectorAll('.badge');
+    
+    badges.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.15)';
+        });
+        
+        badge.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+}
+
+// ============================================
+// VIEW COURSE STATISTICS
+// ============================================
+function viewCourseStats(courseId) {
+    showLoading();
+    
+    fetch('/courses/api/courses/' + courseId + '/stats')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideLoading();
+            displayCourseStatsModal(data);
+        })
+        .catch(error => {
+            hideLoading();
+            showToast('Failed to load course statistics', 'danger');
+            console.error('Error:', error);
+        });
+}
+
+// ============================================
+// DISPLAY COURSE STATS MODAL
+// ============================================
+function displayCourseStatsModal(data) {
+    const modalHtml = `
+        <div class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Course Statistics</h2>
+                    <button onclick="closeModalByButton()" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--gray-500); line-height: 1; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.3s ease;">
+                        &times;
+                    </button>
+                </div>
+                
+                <div class="modal-stats-grid">
+                    <div class="modal-stat-box">
+                        <span class="value">${data.total_enrollments}</span>
+                        <span class="label">Total Enrollments</span>
+                    </div>
+                    <div class="modal-stat-box">
+                        <span class="value">${data.active_enrollments}</span>
+                        <span class="label">Active Students</span>
+                    </div>
+                    <div class="modal-stat-box">
+                        <span class="value">${data.completed_enrollments}</span>
+                        <span class="label">Completed</span>
+                    </div>
+                    <div class="modal-stat-box">
+                        <span class="value">${data.average_progress.toFixed(1)}%</span>
+                        <span class="label">Average Progress</span>
+                    </div>
+                </div>
+                
+                <button onclick="closeModalByButton()" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-check"></i> Close
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Animate the stats
+    setTimeout(() => {
+        const values = document.querySelectorAll('.modal-stat-box .value');
+        values.forEach((value, index) => {
+            setTimeout(() => {
+                value.style.transition = 'transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                value.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    value.style.transform = 'scale(1)';
+                }, 300);
+            }, index * 100);
+        });
+    }, 100);
+}
+
+// ============================================
+// CLOSE MODAL FUNCTIONS
+// ============================================
+function closeModal(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        event.target.remove();
+    }
+}
+
+function closeModalByButton() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// ============================================
+// SHOW TOAST NOTIFICATION
+// ============================================
+function showToast(message, type = 'info') {
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const icons = {
+        success: 'fa-check-circle',
+        danger: 'fa-exclamation-circle',
+        info: 'fa-info-circle'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <i class="fas ${icons[type] || icons.info}" style="font-size: 1.5rem;"></i>
+            <span style="font-weight: 500;">${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 5000);
+}
+
+// ============================================
+// LOADING INDICATORS
+// ============================================
+function showLoading() {
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loading-overlay';
+    loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+    `;
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'loading';
+    spinner.style.cssText = `
+        width: 50px;
+        height: 50px;
+        border-width: 5px;
+    `;
+    
+    loadingOverlay.appendChild(spinner);
+    document.body.appendChild(loadingOverlay);
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+    }
+}
+
+// ============================================
+// SMOOTH SCROLL
+// ============================================
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// ============================================
+// AUTO-HIDE FLASH MESSAGES
+// ============================================
+setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        alert.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-20px)';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 5000);
+
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+document.addEventListener('keydown', function(e) {
+    // Close modal with Escape key
+    if (e.key === 'Escape') {
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) {
+            closeModalByButton();
+        }
+    }
+});
+
+// ============================================
+// ENHANCE STAT BOX INTERACTIONS
+// ============================================
+const statBoxes = document.querySelectorAll('.stat-box');
+statBoxes.forEach(box => {
+    box.addEventListener('click', function() {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Login - E-Learning Platform{% endblock %}
+
+{% block extra_css %}
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Welcome Back!</h2>
+            <p>Login to continue your learning journey</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username_or_email">
+                    <i class="fas fa-user"></i> Username or Email
+                </label>
+                <input 
+                    type="text" 
+                    id="username_or_email" 
+                    name="username_or_email" 
+                    class="form-control" 
+                    placeholder="Enter your username or email"
+                    required
+                    autofocus
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <div style="position: relative;">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button 
+                        type="button" 
+                        onclick="togglePasswordVisibility('password')"
+                        style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray-400); transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--primary-blue)'"
+                        onmouseout="this.style.color='var(--gray-400)'"
+                    >
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="remember_me" name="remember_me">
+                <label for="remember_me">Remember me for 30 days</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <span>Login</span>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Auth-specific JavaScript -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

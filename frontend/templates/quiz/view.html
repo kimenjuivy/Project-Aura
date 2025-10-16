@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - E-Learning Platform{% endblock %}
+
+{% block content %}
+<div class="quiz-view-page">
+    <div class="container">
+        <div class="quiz-breadcrumb">
+            <a href="{{ url_for('course.course_detail', course_id=course.course_id) }}">{{ course.title }}</a>
+            <span>/</span>
+            <a href="{{ url_for('course.view_module', course_id=course.course_id, module_id=module.module_id) }}">{{ module.title }}</a>
+            <span>/</span>
+            <span>{{ quiz.title }}</span>
+        </div>
+
+        <div class="quiz-view-layout">
+            <!-- Main Content -->
+            <div class="quiz-view-main">
+                <h1>{{ quiz.title }}</h1>
+                <p class="quiz-description">{{ quiz.description }}</p>
+
+                <!-- Quiz Information -->
+                <div class="quiz-info-box">
+                    <h3>Quiz Information</h3>
+                    <ul class="quiz-info-list">
+                        <li>
+                            <i class="fas fa-question-circle"></i>
+                            <strong>Questions:</strong> {{ quiz.questions.count() }}
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <strong>Time Limit:</strong> {{ quiz.duration_minutes }} minutes
+                        </li>
+                        <li>
+                            <i class="fas fa-trophy"></i>
+                            <strong>Passing Score:</strong> {{ quiz.passing_score }}%
+                        </li>
+                        <li>
+                            <i class="fas fa-redo"></i>
+                            <strong>Attempts Allowed:</strong> {{ quiz.max_attempts }}
+                        </li>
+                        <li>
+                            <i class="fas fa-chart-line"></i>
+                            <strong>Attempts Used:</strong> {{ attempts|length }} / {{ quiz.max_attempts }}
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Previous Attempts -->
+                {% if attempts %}
+                    <div class="previous-attempts">
+                        <h3>Your Previous Attempts</h3>
+                        <table class="attempts-table">
+                            <thead>
+                                <tr>
+                                    <th>Attempt</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in attempts %}
+                                    <tr>
+                                        <td>{{ attempt.attempt_number }}</td>
+                                        <td>{{ "%.2f"|format(attempt.score) }} / {{ "%.2f"|format(attempt.total_points) }}</td>
+                                        <td>{{ "%.1f"|format(attempt.percentage) }}%</td>
+                                        <td>
+                                            {% if attempt.passed %}
+                                                <span class="badge badge-success">Passed</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">Failed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ attempt.submitted_at.strftime('%Y-%m-%d %H:%M') if attempt.submitted_at else 'In Progress' }}</td>
+                                        <td>
+                                            {% if attempt.submitted_at %}
+                                                <a href="{{ url_for('quiz.view_results', attempt_id=attempt.attempt_id) }}" 
+                                                   class="btn btn-sm btn-secondary">
+                                                    View Results
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {% if best_attempt %}
+                            <div class="best-score-highlight">
+                                <i class="fas fa-star"></i> Best Score: {{ "%.1f"|format(best_attempt.percentage) }}%
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Start Quiz Button -->
+                <div class="quiz-start-section">
+                    {% if can_attempt %}
+                        <form method="POST" action="{{ url_for('quiz.start_quiz', quiz_id=quiz.quiz_id) }}">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i> 
+                                {% if attempts %}
+                                    Start New Attempt ({{ attempts|length + 1 }}/{{ quiz.max_attempts }})
+                                {% else %}
+                                    Start Quiz
+                                {% endif %}
+                            </button>
+                        </form>
+                        <p class="quiz-instructions">
+                            Once you start, the timer will begin. Make sure you have a stable internet connection.
+                        </p>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            You have used all {{ quiz.max_attempts }} attempts for this quiz.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="quiz-view-sidebar">
+                <div class="sidebar-card">
+                    <h3>Tips for Success</h3>
+                    <ul class="tips-list">
+                        <li><i class="fas fa-check"></i> Read each question carefully</li>
+                        <li><i class="fas fa-check"></i> Manage your time wisely</li>
+                        <li><i class="fas fa-check"></i> Review your answers before submitting</li>
+                        <li><i class="fas fa-check"></i> Stay focused and avoid distractions</li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3>Need Help?</h3>
+                    <p>Review the module materials before taking the quiz.</p>
+                    <a href="{{ url_for('course.view_module', course_id=course.course_id, module_id=module.module_id) }}" 
+                       class="btn btn-secondary btn-block">
+                        <i class="fas fa-book"></i> Review Module
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}

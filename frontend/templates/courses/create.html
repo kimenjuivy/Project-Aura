@@ -1,0 +1,2070 @@
+{% extends "base.html" %}
+
+{% block title %}Create Course - E-Learning Platform{% endblock %}
+{% block extra_css %}
+<style>
+
+    :root {
+    /* Primary Blue Palette */
+    --primary-blue: #2563eb;
+    --primary-blue-light: #3b82f6;
+    --primary-blue-dark: #1e40af;
+    --primary-blue-glow: rgba(37, 99, 235, 0.3);
+    
+    /* Accent Blues */
+    --accent-blue: #0ea5e9;
+    --accent-blue-light: #38bdf8;
+    --sky-blue: #e0f2fe;
+    --ice-blue: #f0f9ff;
+    
+    /* Whites & Grays */
+    --white: #ffffff;
+    --off-white: #fafbfc;
+    --light-gray: #f8fafc;
+    --border-gray: #e2e8f0;
+    --text-gray: #64748b;
+    --dark-gray: #1e293b;
+    
+    /* Semantic Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    /* Shadows & Effects */
+    --shadow-sm: 0 1px 3px rgba(37, 99, 235, 0.08);
+    --shadow-md: 0 4px 12px rgba(37, 99, 235, 0.12);
+    --shadow-lg: 0 10px 30px rgba(37, 99, 235, 0.15);
+    --shadow-xl: 0 20px 50px rgba(37, 99, 235, 0.2);
+    --glow-effect: 0 0 20px var(--primary-blue-glow);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* ============================================
+   GLOBAL RESET & BASE STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--ice-blue) 0%, var(--white) 100%);
+    color: var(--dark-gray);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ============================================
+   ENHANCED BUTTONS
+   ============================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--glow-effect);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary-blue);
+    border: 2px solid var(--border-gray);
+}
+
+.btn-secondary:hover {
+    background: var(--ice-blue);
+    border-color: var(--primary-blue-light);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 1rem;
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ============================================
+   ENHANCED FORM CONTROLS
+   ============================================ */
+
+.form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    color: var(--dark-gray);
+    background: var(--white);
+    border: 2px solid var(--border-gray);
+    border-radius: 0.75rem;
+    transition: all var(--transition-base);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px var(--primary-blue-glow);
+    transform: translateY(-1px);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+select.form-control {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    appearance: none;
+}
+
+/* ============================================
+   COURSE CARDS - MAGICAL FLOATING EFFECT
+   ============================================ */
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.course-card {
+    background: var(--white);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 2px solid var(--border-gray);
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue));
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+}
+
+.course-card:hover::before {
+    transform: scaleX(1);
+}
+
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-blue-light);
+}
+
+.course-card-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--ice-blue), var(--sky-blue));
+}
+
+.course-category, .course-level {
+    padding: 0.375rem 0.875rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.course-category {
+    background: var(--primary-blue);
+    color: var(--white);
+}
+
+.course-level {
+    background: var(--white);
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.course-card-body {
+    padding: 1.5rem;
+}
+
+.course-card-body h3 {
+    color: var(--dark-gray);
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    transition: color var(--transition-fast);
+}
+
+.course-card:hover h3 {
+    color: var(--primary-blue);
+}
+
+.course-code {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--ice-blue);
+    color: var(--primary-blue);
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.course-description {
+    color: var(--text-gray);
+    margin: 1rem 0;
+    line-height: 1.6;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-gray);
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.course-meta i {
+    color: var(--primary-blue);
+    margin-right: 0.35rem;
+}
+
+.course-card-footer {
+    padding: 1.25rem;
+    background: var(--light-gray);
+}
+
+/* ============================================
+   MODULE PAGE LAYOUT
+   ============================================ */
+
+.module-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--ice-blue) 0%, var(--white) 50%, var(--sky-blue) 100%);
+}
+
+.module-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--white);
+    border-bottom: 2px solid var(--border-gray);
+    box-shadow: var(--shadow-sm);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-blue);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.back-link:hover {
+    gap: 0.75rem;
+    color: var(--primary-blue-dark);
+}
+
+.module-progress-indicator {
+    padding: 0.5rem 1.25rem;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    color: var(--white);
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.module-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   MODULE SIDEBAR - FLOATING NAVIGATION
+   ============================================ */
+
+.module-sidebar {
+    background: var(--white);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+    border: 2px solid var(--border-gray);
+}
+
+.module-sidebar h3 {
+    color: var(--dark-gray);
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--ice-blue);
+}
+
+.module-nav-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--light-gray);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: var(--dark-gray);
+    transition: all var(--transition-base);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.module-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary-blue);
+    transform: scaleY(0);
+    transition: transform var(--transition-base);
+}
+
+.module-nav-item:hover::before,
+.module-nav-item.active::before {
+    transform: scaleY(1);
+}
+
+.module-nav-item:hover {
+    background: var(--ice-blue);
+    border-color: var(--primary-blue-light);
+    transform: translateX(4px);
+}
+
+.module-nav-item.active {
+    background: linear-gradient(135deg, var(--ice-blue), var(--sky-blue));
+    border-color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.module-nav-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--white);
+    color: var(--primary-blue);
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    border: 2px solid var(--primary-blue-light);
+    transition: all var(--transition-base);
+}
+
+.module-nav-item.active .module-nav-number {
+    background: var(--primary-blue);
+    color: var(--white);
+    box-shadow: var(--glow-effect);
+}
+
+.module-nav-title {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* ============================================
+   MODULE CONTENT AREA
+   ============================================ */
+
+.module-content {
+    background: var(--white);
+    border-radius: 1.25rem;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border-gray);
+}
+
+.module-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 3px solid var(--ice-blue);
+}
+
+.module-header h1 {
+    font-size: 2.5rem;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.module-description {
+    font-size: 1.1rem;
+    color: var(--text-gray);
+    line-height: 1.7;
+}
+
+.learning-objectives {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--ice-blue), var(--sky-blue));
+    border-radius: 1rem;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.learning-objectives h3 {
+    color: var(--primary-blue);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   RESOURCE & QUIZ ITEMS - PREMIUM CARDS
+   ============================================ */
+
+.module-section {
+    margin-bottom: 3rem;
+}
+
+.module-section h2 {
+    color: var(--dark-gray);
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.module-section h2 i {
+    color: var(--primary-blue);
+}
+
+.resource-item, .quiz-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border: 2px solid var(--border-gray);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.resource-item::before, .quiz-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--primary-blue), var(--accent-blue));
+    transform: scaleY(0);
+    transition: transform var(--transition-base);
+}
+
+.resource-item:hover::before, .quiz-item:hover::before {
+    transform: scaleY(1);
+}
+
+.resource-item:hover, .quiz-item:hover {
+    border-color: var(--primary-blue-light);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(8px);
+    background: var(--ice-blue);
+}
+
+.resource-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    color: var(--white);
+    border-radius: 1rem;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+}
+
+.resource-content, .quiz-content {
+    flex: 1;
+}
+
+.resource-content h4, .quiz-content h4 {
+    color: var(--dark-gray);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.resource-meta, .quiz-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.resource-meta span, .quiz-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.resource-meta i, .quiz-meta i {
+    color: var(--primary-blue);
+}
+
+.resource-actions, .quiz-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-warning {
+    background: var(--warning);
+    color: var(--white);
+}
+
+/* ============================================
+   MODULE NAVIGATION BUTTONS
+   ============================================ */
+
+.module-navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 3px solid var(--ice-blue);
+}
+
+/* ============================================
+   FILTERS SECTION - SLEEK SEARCH
+   ============================================ */
+
+.filters-section {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    border: 2px solid var(--border-gray);
+}
+
+.filters-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   COURSE DETAIL PAGE
+   ============================================ */
+
+.course-detail-header {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 2rem;
+    border: 2px solid var(--border-gray);
+    position: relative;
+    overflow: hidden;
+}
+
+.course-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue), var(--primary-blue));
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.course-breadcrumb {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.course-breadcrumb a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.course-breadcrumb a:hover {
+    color: var(--primary-blue-dark);
+}
+
+.course-title-section h1 {
+    font-size: 2.5rem;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.course-detail-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+.course-main {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border-gray);
+}
+
+.course-section {
+    margin-bottom: 3rem;
+}
+
+.course-section h2 {
+    color: var(--dark-gray);
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--ice-blue);
+}
+
+/* ============================================
+   INSTRUCTOR INFO CARD
+   ============================================ */
+
+.instructor-info {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--ice-blue), var(--sky-blue));
+    border-radius: 1rem;
+    border: 2px solid var(--primary-blue-light);
+}
+
+.instructor-avatar {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border-radius: 50%;
+    font-size: 3rem;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+}
+
+.instructor-details h3 {
+    color: var(--primary-blue-dark);
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   MODULE LIST IN DETAIL PAGE
+   ============================================ */
+
+.module-item {
+    padding: 1.5rem;
+    background: var(--light-gray);
+    border: 2px solid var(--border-gray);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    transition: all var(--transition-base);
+}
+
+.module-item:hover {
+    background: var(--ice-blue);
+    border-color: var(--primary-blue-light);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.module-header h3 {
+    color: var(--dark-gray);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.module-header h3 i {
+    color: var(--primary-blue);
+}
+
+/* ============================================
+   SIDEBAR CARDS
+   ============================================ */
+
+.course-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sidebar-card {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border-gray);
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebar-card h3 {
+    color: var(--dark-gray);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--ice-blue);
+}
+
+.course-info-list {
+    list-style: none;
+}
+
+.course-info-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid var(--border-gray);
+}
+
+.course-info-list li:last-child {
+    border-bottom: none;
+}
+
+.course-info-list i {
+    width: 24px;
+    color: var(--primary-blue);
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   CONTAINER & UTILITIES
+   ============================================ */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.container-fluid {
+    width: 100%;
+    padding: 0 1.5rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    color: var(--dark-gray);
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 2px dashed var(--border-gray);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--primary-blue-light);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--dark-gray);
+    margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+    color: var(--text-gray);
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .module-layout {
+        grid-template-columns: 250px 1fr;
+    }
+    
+    .course-detail-content {
+        grid-template-columns: 1fr 350px;
+    }
+}
+
+@media (max-width: 992px) {
+    .module-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .module-sidebar {
+        position: static;
+        order: 2;
+    }
+    
+    .course-detail-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .module-navigation-buttons {
+        flex-direction: column;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .course-title-section h1 {
+        font-size: 1.75rem;
+    }
+}
+
+/* ============================================
+   LOADING & ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.course-card, .module-nav-item, .resource-item, .quiz-item {
+    animation: fadeIn 0.5s ease backwards;
+}
+
+.course-card:nth-child(1) { animation-delay: 0.1s; }
+.course-card:nth-child(2) { animation-delay: 0.2s; }
+.course-card:nth-child(3) { animation-delay: 0.3s; }
+.course-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ============================================
+   FOCUS STATES FOR ACCESSIBILITY
+   ============================================ */
+
+*:focus {
+    outline: 3px solid var(--primary-blue-glow);
+    outline-offset: 2px;
+}
+
+.btn:focus, .form-control:focus {
+    outline: 3px solid var(--primary-blue-glow);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-course-page" style="padding: 2rem 0;">
+    <div class="container">
+        <div class="page-header" style="margin-bottom: 2rem;">
+            <a href="{{ url_for('course.instructor_dashboard') }}" class="back-link" style="color: var(--primary-color); text-decoration: none; display: inline-block; margin-bottom: 1rem;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1 style="color: var(--dark-color);">Create New Course</h1>
+            <p style="color: var(--text-muted);">Fill in the details to create your course</p>
+        </div>
+
+        <div class="create-course-form" style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: var(--shadow); max-width: 800px; margin: 0 auto;">
+            <form method="POST" action="{{ url_for('course.create_course') }}">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="course_code" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                        Course Code <span style="color: var(--danger-color);">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="course_code" 
+                        name="course_code" 
+                        class="form-control" 
+                        placeholder="e.g., PSY101, CS201"
+                        required
+                        pattern="[A-Z0-9]+"
+                        title="Use uppercase letters and numbers only"
+                        style="text-transform: uppercase;"
+                    >
+                    <small style="color: var(--text-muted); font-size: 0.875rem;">Unique code for your course (e.g., PSY101)</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="title" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                        Course Title <span style="color: var(--danger-color);">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        class="form-control" 
+                        placeholder="e.g., Introduction to Psychology"
+                        required
+                        minlength="5"
+                        maxlength="200"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="description" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                        Course Description <span style="color: var(--danger-color);">*</span>
+                    </label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        class="form-control" 
+                        rows="5"
+                        placeholder="Describe what students will learn in this course..."
+                        required
+                        minlength="20"
+                    ></textarea>
+                    <small style="color: var(--text-muted); font-size: 0.875rem;">At least 20 characters</small>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                            Category <span style="color: var(--danger-color);">*</span>
+                        </label>
+                        <select id="category" name="category" class="form-control" required>
+                            <option value="">Select a category</option>
+                            <option value="Psychology">Psychology</option>
+                            <option value="Business">Business</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Health">Health</option>
+                            <option value="Creative Arts">Creative Arts</option>
+                            <option value="Economics">Economics</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Communication">Communication</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficulty_level" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                            Difficulty Level <span style="color: var(--danger-color);">*</span>
+                        </label>
+                        <select id="difficulty_level" name="difficulty_level" class="form-control" required>
+                            <option value="beginner" selected>Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="duration_weeks" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color);">
+                        Duration (weeks) <span style="color: var(--danger-color);">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="duration_weeks" 
+                        name="duration_weeks" 
+                        class="form-control" 
+                        value="8"
+                        min="1"
+                        max="52"
+                        required
+                    >
+                    <small style="color: var(--text-muted); font-size: 0.875rem;">Recommended: 8 weeks</small>
+                </div>
+
+                <div class="form-actions" style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                    <a href="{{ url_for('course.instructor_dashboard') }}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Create Course
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="help-section" style="max-width: 800px; margin: 2rem auto; padding: 1.5rem; background: var(--light-color); border-radius: 0.5rem;">
+            <h3 style="color: var(--dark-color); margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Tips for Creating a Great Course</h3>
+            <ul style="color: var(--text-color); line-height: 1.8;">
+                <li>Choose a clear and descriptive title that tells students exactly what they'll learn</li>
+                <li>Write a comprehensive description highlighting key learning outcomes</li>
+                <li>Select the appropriate difficulty level for your target audience</li>
+                <li>Use a unique course code that's easy to remember</li>
+                <li>After creating the course, you can add modules, resources, and quizzes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================
+// MAGICAL E-LEARNING PLATFORM JAVASCRIPT
+// Professional Interactions & Smooth Animations
+// ============================================
+
+// ============================================
+// GLOBAL VARIABLES & INITIALIZATION
+// ============================================
+let toastTimeout;
+let loadingOverlay;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    initCourseFilters();
+    initEnrollmentButtons();
+    initResourceTracking();
+    initModuleTracking();
+    initSmoothScrolling();
+    initAnimations();
+    initTooltips();
+    createLoadingOverlay();
+});
+
+// ============================================
+// APP INITIALIZATION
+// ============================================
+function initializeApp() {
+    // Add magic cursor effect
+    addMagicCursor();
+    
+    // Add scroll progress indicator
+    addScrollProgress();
+    
+    // Initialize form validation
+    initFormValidation();
+    
+    console.log('🎓 E-Learning Platform initialized successfully!');
+}
+
+// ============================================
+// MAGIC CURSOR EFFECT
+// ============================================
+function addMagicCursor() {
+    const cursor = document.createElement('div');
+    cursor.className = 'magic-cursor';
+    cursor.style.cssText = `
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(37, 99, 235, 0.3);
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        opacity: 0;
+    `;
+    document.body.appendChild(cursor);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let cursorX = 0;
+    let cursorY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.opacity = '1';
+    });
+
+    document.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+    });
+
+    function animateCursor() {
+        cursorX += (mouseX - cursorX) * 0.1;
+        cursorY += (mouseY - cursorY) * 0.1;
+        cursor.style.transform = `translate(${cursorX - 10}px, ${cursorY - 10}px)`;
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Expand cursor on interactive elements
+    const interactiveElements = document.querySelectorAll('a, button, .btn, .course-card, .module-nav-item');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursor.style.transform = `translate(${cursorX - 10}px, ${cursorY - 10}px) scale(2)`;
+            cursor.style.background = 'rgba(37, 99, 235, 0.2)';
+        });
+        el.addEventListener('mouseleave', () => {
+            cursor.style.transform = `translate(${cursorX - 10}px, ${cursorY - 10}px) scale(1)`;
+            cursor.style.background = 'rgba(37, 99, 235, 0.3)';
+        });
+    });
+}
+
+// ============================================
+// SCROLL PROGRESS INDICATOR
+// ============================================
+function addScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        width: 0%;
+        z-index: 9998;
+        transition: width 0.1s ease;
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+    `;
+    document.body.appendChild(progressBar);
+
+    window.addEventListener('scroll', () => {
+        const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (window.scrollY / windowHeight) * 100;
+        progressBar.style.width = scrolled + '%';
+    });
+}
+
+// ============================================
+// COURSE FILTERS WITH SMOOTH TRANSITIONS
+// ============================================
+function initCourseFilters() {
+    const filterForm = document.querySelector('.filters-form');
+    if (!filterForm) return;
+
+    const searchInput = filterForm.querySelector('#search');
+    const categorySelect = filterForm.querySelector('#category');
+    const difficultySelect = filterForm.querySelector('#difficulty');
+
+    // Add smooth filtering with debounce
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            
+            // Add loading state
+            this.style.borderColor = '#0ea5e9';
+            
+            debounceTimer = setTimeout(() => {
+                filterCoursesLocally();
+                this.style.borderColor = '';
+            }, 300);
+        });
+    }
+
+    // Auto-submit on select change with animation
+    const selects = [categorySelect, difficultySelect].filter(Boolean);
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            addSpinnerToButton();
+            setTimeout(() => filterForm.submit(), 300);
+        });
+    });
+}
+
+// ============================================
+// LOCAL COURSE FILTERING (CLIENT-SIDE)
+// ============================================
+function filterCoursesLocally() {
+    const searchTerm = document.getElementById('search')?.value.toLowerCase() || '';
+    const courseCards = document.querySelectorAll('.course-card');
+
+    courseCards.forEach((card, index) => {
+        const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+        const description = card.querySelector('.course-description')?.textContent.toLowerCase() || '';
+        const code = card.querySelector('.course-code')?.textContent.toLowerCase() || '';
+
+        const matches = title.includes(searchTerm) || 
+                       description.includes(searchTerm) || 
+                       code.includes(searchTerm);
+
+        if (matches) {
+            card.style.display = '';
+            card.style.animation = 'fadeIn 0.5s ease';
+            card.style.animationDelay = `${index * 0.05}s`;
+        } else {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
+    });
+
+    updateCourseCount();
+}
+
+// ============================================
+// UPDATE COURSE COUNT
+// ============================================
+function updateCourseCount() {
+    const visibleCourses = document.querySelectorAll('.course-card:not([style*="display: none"])').length;
+    const countElement = document.querySelector('.courses-count p');
+    if (countElement) {
+        countElement.textContent = `Found ${visibleCourses} course(s)`;
+        countElement.style.animation = 'fadeIn 0.3s ease';
+    }
+}
+
+// ============================================
+// ENROLLMENT BUTTONS WITH CONFIRMATION
+// ============================================
+function initEnrollmentButtons() {
+    const enrollForms = document.querySelectorAll('form[action*="enroll"]');
+    
+    enrollForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const courseTitle = document.querySelector('.course-title-section h1')?.textContent || 'this course';
+            
+            showConfirmDialog(
+                'Enroll in Course',
+                `Are you sure you want to enroll in "${courseTitle}"?`,
+                () => {
+                    showLoading('Enrolling...');
+                    setTimeout(() => {
+                        form.submit();
+                    }, 500);
+                }
+            );
+        });
+    });
+}
+
+// ============================================
+// RESOURCE TRACKING WITH ANIMATIONS
+// ============================================
+function initResourceTracking() {
+    const markCompleteButtons = document.querySelectorAll('.mark-complete-btn');
+    
+    markCompleteButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const resourceId = this.dataset.resourceId;
+            markResourceComplete(resourceId, this);
+        });
+    });
+}
+
+function markResourceComplete(resourceId, button) {
+    // Animate button
+    button.style.transform = 'scale(0.95)';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marking...';
+    
+    fetch(`/progress/resource/${resourceId}/complete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            time_spent_minutes: 0
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Success animation
+            button.innerHTML = '<i class="fas fa-check"></i> Completed';
+            button.classList.remove('btn-success');
+            button.classList.add('btn-secondary');
+            button.disabled = true;
+            button.style.transform = 'scale(1)';
+            
+            // Confetti effect
+            createConfetti(button);
+            
+            // Show toast
+            showToast('Resource completed! Great progress! 🎉', 'success');
+        } else {
+            button.style.transform = 'scale(1)';
+            button.innerHTML = '<i class="fas fa-check"></i> Mark Complete';
+            showToast('Failed to mark resource as complete', 'danger');
+        }
+    })
+    .catch(error => {
+        button.style.transform = 'scale(1)';
+        button.innerHTML = '<i class="fas fa-check"></i> Mark Complete';
+        showToast('An error occurred', 'danger');
+        console.error('Error:', error);
+    });
+}
+
+// ============================================
+// MODULE TRACKING WITH PROGRESS
+// ============================================
+function initModuleTracking() {
+    const completeModuleBtn = document.querySelector('.complete-module-btn');
+    
+    if (completeModuleBtn) {
+        completeModuleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const moduleId = this.dataset.moduleId;
+            markModuleComplete(moduleId, this);
+        });
+    }
+}
+
+function markModuleComplete(moduleId, button) {
+    showConfirmDialog(
+        'Complete Module',
+        'Mark this module as complete? This will update your course progress.',
+        () => {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            button.disabled = true;
+            
+            fetch(`/progress/module/${moduleId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Success animation
+                    button.innerHTML = '<i class="fas fa-trophy"></i> Module Completed!';
+                    
+                    // Show celebration
+                    createCelebration();
+                    
+                    // Show progress toast
+                    showToast(`🎊 Module completed! Course progress: ${data.course_progress.toFixed(1)}%`, 'success', 3000);
+                    
+                    // Reload after delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    button.innerHTML = '<i class="fas fa-check-circle"></i> Mark Module Complete';
+                    button.disabled = false;
+                    showToast('Failed to mark module as complete', 'danger');
+                }
+            })
+            .catch(error => {
+                button.innerHTML = '<i class="fas fa-check-circle"></i> Mark Module Complete';
+                button.disabled = false;
+                showToast('An error occurred', 'danger');
+                console.error('Error:', error);
+            });
+        }
+    );
+}
+
+// ============================================
+// SMOOTH SCROLLING
+// ============================================
+function initSmoothScrolling() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+}
+
+// ============================================
+// ENTRANCE ANIMATIONS
+// ============================================
+function initAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Animate elements on scroll
+    const animatedElements = document.querySelectorAll('.course-card, .module-section, .sidebar-card, .resource-item, .quiz-item');
+    animatedElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+}
+
+// ============================================
+// TOOLTIPS
+// ============================================
+function initTooltips() {
+    const elementsWithTitle = document.querySelectorAll('[title]');
+    
+    elementsWithTitle.forEach(el => {
+        el.addEventListener('mouseenter', function() {
+            const title = this.getAttribute('title');
+            if (!title) return;
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'custom-tooltip';
+            tooltip.textContent = title;
+            tooltip.style.cssText = `
+                position: absolute;
+                background: #1e293b;
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+                font-size: 0.875rem;
+                z-index: 10000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            `;
+            
+            document.body.appendChild(tooltip);
+            
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+            tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+            
+            setTimeout(() => tooltip.style.opacity = '1', 10);
+            
+            this.addEventListener('mouseleave', function() {
+                tooltip.style.opacity = '0';
+                setTimeout(() => tooltip.remove(), 300);
+            }, { once: true });
+        });
+    });
+}
+
+// ============================================
+// FORM VALIDATION
+// ============================================
+function initFormValidation() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateInput(this);
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    validateInput(this);
+                }
+            });
+        });
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!validateInput(input)) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                showToast('Please fill in all required fields correctly', 'warning');
+            }
+        });
+    });
+}
+
+function validateInput(input) {
+    const value = input.value.trim();
+    let isValid = true;
+    let message = '';
+    
+    // Check if empty
+    if (input.hasAttribute('required') && !value) {
+        isValid = false;
+        message = 'This field is required';
+    }
+    
+    // Check minlength
+    if (input.hasAttribute('minlength') && value.length < input.getAttribute('minlength')) {
+        isValid = false;
+        message = `Minimum ${input.getAttribute('minlength')} characters required`;
+    }
+    
+    // Check pattern
+    if (input.hasAttribute('pattern') && value && !new RegExp(input.getAttribute('pattern')).test(value)) {
+        isValid = false;
+        message = input.getAttribute('title') || 'Invalid format';
+    }
+    
+    // Update UI
+    if (isValid) {
+        input.classList.remove('is-invalid');
+        input.style.borderColor = '#10b981';
+        removeErrorMessage(input);
+    } else {
+        input.classList.add('is-invalid');
+        input.style.borderColor = '#ef4444';
+        showErrorMessage(input, message);
+    }
+    
+    return isValid;
+}
+
+function showErrorMessage(input, message) {
+    removeErrorMessage(input);
+    
+    const error = document.createElement('div');
+    error.className = 'error-message';
+    error.textContent = message;
+    error.style.cssText = `
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    input.parentElement.appendChild(error);
+}
+
+function removeErrorMessage(input) {
+    const existing = input.parentElement.querySelector('.error-message');
+    if (existing) existing.remove();
+}
+
+// ============================================
+// LOADING OVERLAY
+// ============================================
+function createLoadingOverlay() {
+    loadingOverlay = document.createElement('div');
+    loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    `;
+    
+    loadingOverlay.innerHTML = `
+        <div style="text-align: center;">
+            <div style="
+                width: 60px;
+                height: 60px;
+                border: 4px solid #e0f2fe;
+                border-top: 4px solid #2563eb;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 1rem;
+            "></div>
+            <p style="color: #2563eb; font-weight: 600; font-size: 1.1rem;" id="loading-text">Loading...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingOverlay);
+    
+    // Add spin animation
+    if (!document.getElementById('spin-animation')) {
+        const style = document.createElement('style');
+        style.id = 'spin-animation';
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function showLoading(message = 'Loading...') {
+    if (loadingOverlay) {
+        const loadingText = loadingOverlay.querySelector('#loading-text');
+        if (loadingText) loadingText.textContent = message;
+        loadingOverlay.style.display = 'flex';
+    }
+}
+
+function hideLoading() {
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+    }
+}
+
+// ============================================
+// TOAST NOTIFICATIONS
+// ============================================
+function showToast(message, type = 'info', duration = 3000) {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.custom-toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const colors = {
+        success: '#10b981',
+        danger: '#ef4444',
+        warning: '#f59e0b',
+        info: '#2563eb'
+    };
+    
+    const icons = {
+        success: 'fa-check-circle',
+        danger: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = 'custom-toast';
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        color: ${colors[type]};
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-left: 4px solid ${colors[type]};
+        min-width: 300px;
+        animation: slideInRight 0.4s ease;
+    `;
+    
+    toast.innerHTML = `
+        <i class="fas ${icons[type]}" style="font-size: 1.25rem;"></i>
+        <span style="color: #1e293b; font-weight: 500;">${message}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Add slide animation
+    if (!document.getElementById('toast-animations')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+    }, duration);
+}
+
+// ============================================
+// CONFIRMATION DIALOG
+// ============================================
+function showConfirmDialog(title, message, onConfirm) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10002;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        animation: scaleIn 0.3s ease;
+    `;
+    
+    dialog.innerHTML = `
+        <h3 style="color: #1e293b; margin-bottom: 1rem; font-size: 1.5rem;">${title}</h3>
+        <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">${message}</p>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="cancel-btn" style="
+                padding: 0.75rem 1.5rem;
+                background: #f1f5f9;
+                color: #475569;
+                border: none;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">Cancel</button>
+            <button class="confirm-btn" style="
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, #2563eb, #0ea5e9);
+                color: white;
+                border: none;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">Confirm</button>
+        </div>
+    `;
+    
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+    
+    // Add animations
+    if (!document.getElementById('dialog-animations')) {
+        const style = document.createElement('style');
+        style.id = 'dialog-animations';
+        style.textContent = `
+            @keyframes scaleIn {
+                from {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    const cancelBtn = dialog.querySelector('.cancel-btn');
+    const confirmBtn = dialog.querySelector('.confirm-btn');
+    
+    cancelBtn.addEventListener('click', () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+    });
+    
+    confirmBtn.addEventListener('click', () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+        if (onConfirm) onConfirm();
+    });
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 300);
+        }
+    });
+}
+
+// ============================================
+// CONFETTI EFFECT
+// ============================================
+function createConfetti(element) {
+    const rect = element.getBoundingClientRect();
+    const colors = ['#2563eb', '#0ea5e9', '#10b981', '#f59e0b'];
+    
+    for (let i = 0; i < 20; i++) {
+        const confetti = document.createElement('div');
+        confetti.style.cssText = `
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            left: ${rect.left + rect.width / 2}px;
+            top: ${rect.top + rect.height / 2}px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+        `;
+        
+        document.body.appendChild(confetti);
+        
+        const angle = (Math.PI * 2 * i) / 20;
+        const velocity = 100 + Math.random() * 100;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity - 100;
+        
+        animateConfetti(confetti, vx, vy);
+    }
+}
+
+function animateConfetti(element, vx, vy) {
+    let x = 0, y = 0;
+    let gravity = 5;
+    let opacity = 1;
+    
+    function update() {
+        x += vx * 0.016;
+        y += vy * 0.016;
+        vy += gravity;
+        opacity -= 0.016;
+        
+        element.style.transform = `translate(${x}px, ${y}px)`;
+        element.style.opacity = opacity;
+        
+        if (opacity > 0) {
+            requestAnimationFrame(update);
+        } else {
+            element.remove();
+        }
+    }
+    
+    update();
+}
+
+// ============================================
+// CELEBRATION EFFECT (for module completion)
+// ============================================
+function createCelebration() {
+    // Create multiple bursts
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            createConfettiBurst(centerX, centerY);
+        }, i * 200);
+    }
+}
+
+function createConfettiBurst(x, y) {
+    const colors = ['#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6'];
+    
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.style.cssText = `
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            left: ${x}px;
+            top: ${y}px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+        `;
+        
+        document.body.appendChild(confetti);
+        
+        const angle = (Math.PI * 2 * i) / 30;
+        const velocity = 150 + Math.random() * 150;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity - 150;
+        
+        animateConfetti(confetti, vx, vy);
+    }
+}
+
+// ============================================
+// UTILITY: ADD SPINNER TO BUTTON
+// ============================================
+function addSpinnerToButton() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+    }
+}
+
+// ============================================
+// EXPORT FUNCTIONS (if needed)
+// ============================================
+window.courseApp = {
+    showToast,
+    showLoading,
+    hideLoading,
+    showConfirmDialog,
+    markResourceComplete,
+    markModuleComplete,
+    filterCoursesLocally
+};
+
+console.log('✨ Magical E-Learning Platform JavaScript loaded successfully!');
+</script>
+{% endblock %}

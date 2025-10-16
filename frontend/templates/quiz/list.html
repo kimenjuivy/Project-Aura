@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Quizzes - {{ module.title }}{% endblock %}
+
+{% block content %}
+<div class="quiz-list-page" style="padding: 2rem 0;">
+    <div class="container">
+        <div class="breadcrumb" style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.875rem;">
+            <a href="{{ url_for('course.course_detail', course_id=course.course_id) }}" style="color: var(--primary-color); text-decoration: none;">{{ course.title }}</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <a href="{{ url_for('course.view_module', course_id=course.course_id, module_id=module.module_id) }}" style="color: var(--primary-color); text-decoration: none;">{{ module.title }}</a>
+            <span style="margin: 0 0.5rem;">/</span>
+            <span>Quizzes</span>
+        </div>
+
+        <div class="page-header" style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: var(--shadow); margin-bottom: 2rem;">
+            <h1 style="color: var(--dark-color); margin-bottom: 0.5rem;">Quizzes for {{ module.title }}</h1>
+            <p style="color: var(--text-muted);">Test your knowledge and track your progress</p>
+        </div>
+
+        {% if quizzes %}
+            <div class="quizzes-grid" style="display: grid; gap: 1.5rem;">
+                {% for quiz in quizzes %}
+                    <div class="quiz-card" style="background: white; border-radius: 0.5rem; box-shadow: var(--shadow); padding: 2rem;">
+                        <div class="quiz-card-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h2 style="color: var(--dark-color); font-size: 1.5rem; margin-bottom: 0.5rem;">{{ quiz.title }}</h2>
+                                <p style="color: var(--text-muted);">{{ quiz.description }}</p>
+                            </div>
+                            {% if quiz.is_published %}
+                                <span class="badge badge-success">Published</span>
+                            {% else %}
+                                <span class="badge badge-warning">Draft</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="quiz-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; padding: 1.5rem; background: var(--light-color); border-radius: 0.5rem;">
+                            <div class="info-item">
+                                <i class="fas fa-question-circle" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                                <strong>{{ quiz.questions.count() }}</strong> questions
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                                <strong>{{ quiz.duration_minutes }}</strong> minutes
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-trophy" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                                Pass: <strong>{{ quiz.passing_score }}%</strong>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-redo" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+                                <strong>{{ quiz.max_attempts }}</strong> attempts
+                            </div>
+                        </div>
+
+                        {% if current_user.is_authenticated %}
+                            {% set attempts = quiz.attempts.filter_by(enrollment_id=enrollment.enrollment_id).all() if enrollment else [] %}
+                            
+                            {% if attempts %}
+                                <div class="attempt-summary" style="padding: 1rem; background: var(--light-color); border-radius: 0.5rem; margin-bottom: 1rem;">
+                                    <strong style="color: var(--dark-color);">Your Progress:</strong>
+                                    <div style="margin-top: 0.5rem;">
+                                        Attempts: {{ attempts|length }} / {{ quiz.max_attempts }}
+                                        {% set best = attempts|selectattr('percentage')|max(attribute='percentage') if attempts else none %}
+                                        {% if best %}
+                                            | Best Score: <strong style="color: var(--success-color);">{{ "%.1f"|format(best.percentage) }}%</strong>
+                                            {% if best.passed %}
+                                                <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="quiz-actions">
+                                <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-primary">
+                                    <i class="fas fa-play"></i> 
+                                    {% if attempts %}
+                                        {% if attempts|length < quiz.max_attempts %}
+                                            Take Quiz Again
+                                        {% else %}
+                                            View Quiz
+                                        {% endif %}
+                                    {% else %}
+                                        Start Quiz
+                                    {% endif %}
+                                </a>
+                                {% if attempts %}
+                                    <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-secondary">
+                                        <i class="fas fa-history"></i> View History
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info" style="padding: 1rem; background: #dbeafe; color: #1e40af; border-radius: 0.5rem;">
+                                <i class="fas fa-info-circle"></i> Please <a href="{{ url_for('auth.login') }}" style="color: var(--primary-color); font-weight: 600;">login</a> to take this quiz.
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-question-circle"></i>
+                <h3>No Quizzes Available</h3>
+                <p>There are no quizzes for this module yet.</p>
+                <a href="{{ url_for('course.view_module', course_id=course.course_id, module_id=module.module_id) }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Module
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

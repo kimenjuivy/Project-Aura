@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="quiz-results-page">
+    <div class="container">
+        <!-- Results Header -->
+        <div class="results-header">
+            <h1>Quiz Results</h1>
+            <h2>{{ quiz.title }}</h2>
+        </div>
+
+        <!-- Score Card -->
+        <div class="score-card {% if attempt.passed %}passed{% else %}failed{% endif %}">
+            <div class="score-icon">
+                {% if attempt.passed %}
+                    <i class="fas fa-check-circle"></i>
+                {% else %}
+                    <i class="fas fa-times-circle"></i>
+                {% endif %}
+            </div>
+            <div class="score-content">
+                <h2>{{ "%.1f"|format(attempt.percentage) }}%</h2>
+                <p>{{ "%.2f"|format(attempt.score) }} / {{ "%.2f"|format(attempt.total_points) }} points</p>
+                <div class="score-status">
+                    {% if attempt.passed %}
+                        <span class="badge badge-success">Passed</span>
+                    {% else %}
+                        <span class="badge badge-danger">Failed - Need {{ quiz.passing_score }}% to pass</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="results-stats">
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <span>Time Taken: {{ attempt.time_taken_minutes }} minutes</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-calendar"></i>
+                <span>Completed: {{ attempt.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-redo"></i>
+                <span>Attempt: {{ attempt.attempt_number }} of {{ quiz.max_attempts }}</span>
+            </div>
+        </div>
+
+        <!-- Question Review -->
+        <div class="question-review-section">
+            <h3>Question Review</h3>
+            
+            {% for question_data in question_details %}
+                {% set question = question_data.question %}
+                {% set student_answer = question_data.student_answer %}
+                {% set correct_option = question_data.correct_option %}
+                {% set selected_option = question_data.selected_option %}
+                
+                <div class="review-question-card {% if student_answer and student_answer.is_correct %}correct{% else %}incorrect{% endif %}">
+                    <div class="review-question-header">
+                        <span class="question-number">Question {{ loop.index }}</span>
+                        <span class="question-result">
+                            {% if student_answer and student_answer.is_correct %}
+                                <i class="fas fa-check-circle text-success"></i> Correct
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i> Incorrect
+                            {% endif %}
+                        </span>
+                        <span class="question-points">
+                            {{ "%.2f"|format(student_answer.points_earned if student_answer else 0) }} / {{ question.points }} points
+                        </span>
+                    </div>
+
+                    <div class="review-question-text">
+                        <p><strong>{{ question.question_text }}</strong></p>
+                    </div>
+
+                    {% if question.question_type in ['multiple_choice', 'true_false'] %}
+                        <div class="review-options">
+                            <div class="review-option-row">
+                                <strong>Your Answer:</strong>
+                                {% if selected_option %}
+                                    <span class="{% if student_answer.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                        {{ selected_option.option_text }}
+                                        {% if student_answer.is_correct %}
+                                            <i class="fas fa-check"></i>
+                                        {% else %}
+                                            <i class="fas fa-times"></i>
+                                        {% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">No answer provided</span>
+                                {% endif %}
+                            </div>
+
+                            {% if not student_answer.is_correct %}
+                                <div class="review-option-row correct-answer">
+                                    <strong>Correct Answer:</strong>
+                                    <span class="text-success">
+                                        {{ correct_option.option_text }}
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elif question.question_type == 'short_answer' %}
+                        <div class="review-short-answer">
+                            <strong>Your Answer:</strong>
+                            <p>{{ student_answer.answer_text if student_answer else 'No answer provided' }}</p>
+                        </div>
+                    {% endif %}
+
+                    {% if question.explanation %}
+                        <div class="question-explanation">
+                            <strong><i class="fas fa-lightbulb"></i> Explanation:</strong>
+                            <p>{{ question.explanation }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Actions -->
+        <div class="results-actions">
+            <a href="{{ url_for('course.view_module', course_id=quiz.module.course_id, module_id=quiz.module_id) }}" 
+               class="btn btn-secondary">
+                <i class="fas fa-book"></i> Back to Module
+            </a>
+            <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.quiz_id) }}" 
+               class="btn btn-primary">
+                <i class="fas fa-redo"></i> Retake Quiz
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

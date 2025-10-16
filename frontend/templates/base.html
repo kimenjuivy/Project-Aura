@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}E-Learning Platform{% endblock %}</title>
+
+  <!-- Shared global CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- Page-specific CSS -->
+  {% if 'auth/' in request.path %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  {% elif 'courses/' in request.path %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/courses.css') }}">
+  {% elif 'dashboard/' in request.path %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  {% elif 'quiz/' in request.path %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+  {% endif %}
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  {% block content %}{% endblock %}
+
+  <!-- Global JS -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <!-- Page-specific JS -->
+  {% if 'auth/' in request.path %}
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  {% elif 'courses/' in request.path %}
+  <script src="{{ url_for('static', filename='js/courses.js') }}"></script>
+  {% elif 'dashboard/' in request.path %}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  {% elif 'quiz/' in request.path %}
+  <script src="{{ url_for('static', filename='js/quizzes.js') }}"></script>
+  {% endif %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

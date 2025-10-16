@@ -5,18 +5,25 @@ from backend.models import db, User
 from datetime import datetime
 import os
 
-def create_app(config_name='development'):
+def create_app(config_name=None):
     """Application factory pattern"""
+    # Automatically detect environment
+    if config_name is None:
+        # Check if running on Railway
+        if os.environ.get('RAILWAY_ENVIRONMENT'):
+            config_name = 'production'
+        else:
+            config_name = os.environ.get('FLASK_ENV', 'development')
+    
     app = Flask(__name__, 
                 template_folder='../frontend/templates',
                 static_folder='../frontend/static')
    
     # Load configuration
     app.config.from_object(config[config_name])
-
-    # Set SECRET_KEY from environment variable
-    import os
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    
+    # Log which config is being used (helpful for debugging)
+    print(f"Starting app with {config_name} configuration")
     
     # Initialize extensions
     db.init_app(app)
@@ -60,23 +67,42 @@ def create_app(config_name='development'):
                 return redirect(url_for('course.browse_courses'))
         return render_template('index.html')
     
+    # Health check endpoint for Railway
+    @app.route('/health')
+    def health():
+        """Health check endpoint"""
+        return {'status': 'healthy', 'config': config_name}, 200
+    
     # Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
-        return render_template('errors/404.html'), 404
+        """Handle 404 errors"""
+        try:
+            return render_template('errors/404.html'), 404
+        except:
+            return '<h1>404 - Page Not Found</h1>', 404
     
     @app.errorhandler(500)
     def internal_error(error):
+        """Handle 500 errors"""
         db.session.rollback()
-        return render_template('errors/500.html'), 500
+        try:
+            return render_template('errors/500.html'), 500
+        except:
+            return '<h1>500 - Internal Server Error</h1><p>Something went wrong. Please try again later.</p>', 500
     
     @app.errorhandler(403)
     def forbidden_error(error):
-        return render_template('errors/403.html'), 403
+        """Handle 403 errors"""
+        try:
+            return render_template('errors/403.html'), 403
+        except:
+            return '<h1>403 - Forbidden</h1>', 403
     
     # Context processor - makes variables available to all templates
     @app.context_processor
     def inject_now():
+        """Inject current time into templates"""
         return {'now': datetime.utcnow()}
     
     # Prevent caching in development
@@ -89,8 +115,18 @@ def create_app(config_name='development'):
             response.headers['Expires'] = '-1'
         return response
     
+    # Database initialization
+    with app.app_context():
+        try:
+            # Create tables if they don't exist
+            db.create_all()
+            print("Database tables created successfully")
+        except Exception as e:
+            print(f"Error creating database tables: {e}")
+    
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

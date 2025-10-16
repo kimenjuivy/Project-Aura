@@ -42,7 +42,7 @@ def create_app(config_name='development'):
     app.register_blueprint(enrollment_bp, url_prefix='/enrollment')
     app.register_blueprint(progress_bp, url_prefix='/progress')
     
-   # Home route - redirects based on authentication
+    # Home route - redirects based on authentication
     @app.route('/')
     def index():
         """Landing page - redirect to login or dashboard"""
@@ -75,16 +75,18 @@ def create_app(config_name='development'):
     def inject_now():
         return {'now': datetime.utcnow()}
     
-    return app
+    # Prevent caching in development
     @app.after_request
     def add_header(response):
-     """Prevent caching in development"""
-    if app.debug:
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-    return response
+        """Prevent caching in development"""
+        if app.debug:
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '-1'
+        return response
+    
+    return app
 
 if __name__ == '__main__':
-    app = create_app('development')
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app = create_app()
+    app.run()

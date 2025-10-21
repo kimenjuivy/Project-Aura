@@ -19,11 +19,20 @@ class Config:
     # SQLAlchemy Configuration
     # Check for Railway's MYSQL_URL first, then build from components
     MYSQL_URL = os.getenv('MYSQL_URL')
-    if MYSQL_URL and MYSQL_URL.startswith('mysql://'):
-        # Convert mysql:// to mysql+pymysql://
-        SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+    
+    # IMPORTANT: Exclude the public URL - we only want internal URLs
+    if MYSQL_URL and 'railway.internal' in MYSQL_URL:
+        # This is the internal URL - use it!
+        if MYSQL_URL.startswith('mysql://'):
+            SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+        else:
+            SQLALCHEMY_DATABASE_URI = MYSQL_URL
+    elif MYSQL_URL and MYSQL_URL.startswith('mysql://') and 'railway.internal' not in MYSQL_URL:
+        # This is likely the public URL - ignore it and build from components
+        print("Warning: Detected public MYSQL_URL, using internal components instead")
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     else:
-        # Build from individual components (for local development)
+        # Build from individual components (for local development or as fallback)
         SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False

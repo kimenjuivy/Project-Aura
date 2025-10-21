@@ -4,6 +4,7 @@ from .config import config
 from backend.models import db, User
 from datetime import datetime
 import os
+import time
 
 def create_app(config_name=None):
     """Application factory pattern"""
@@ -24,6 +25,27 @@ def create_app(config_name=None):
     
     # Log which config is being used (helpful for debugging)
     print(f"Starting app with {config_name} configuration")
+    
+    # DEBUG: Print database connection info (hide password)
+    print("=== Database Configuration ===")
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
+    if '@' in db_uri:
+        # Mask password in logs
+        parts = db_uri.split('@')
+        user_pass = parts[0].split('://')[-1]
+        if ':' in user_pass:
+            user = user_pass.split(':')[0]
+            masked_uri = db_uri.replace(user_pass, f"{user}:****")
+            print(f"Database URI: {masked_uri}")
+        else:
+            print(f"Database URI: {db_uri}")
+    else:
+        print(f"Database URI: {db_uri}")
+    
+    # Show which variables are set
+    print(f"MYSQLHOST: {os.getenv('MYSQLHOST', 'Not set')}")
+    print(f"MYSQL_URL exists: {bool(os.getenv('MYSQL_URL'))}")
+    print("==============================")
     
     # Initialize extensions
     db.init_app(app)
@@ -115,14 +137,25 @@ def create_app(config_name=None):
             response.headers['Expires'] = '-1'
         return response
     
-    # Database initialization
+    # Database initialization with retry logic
     with app.app_context():
-        try:
-            # Create tables if they don't exist
-            db.create_all()
-            print("Database tables created successfully")
-        except Exception as e:
-            print(f"Error creating database tables: {e}")
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                # Create tables if they don't exist
+                db.create_all()
+                print("✓ Database tables created successfully")
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # Exponential backoff: 1, 2, 4, 8, 16 seconds
+                    print(f"✗ Database connection failed (attempt {attempt + 1}/{max_retries}): {e}")
+                    print(f"  Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"✗ Failed to connect to database after {max_retries} attempts: {e}")
+                    print("  App will start but database operations will fail.")
+                    # Don't crash the app, let it start and show error on first request
     
     return app
 

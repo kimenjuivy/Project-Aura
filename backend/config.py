@@ -19,20 +19,65 @@ class Config:
     # Priority: DATABASE_URL > MYSQL_URL > build from components
     DATABASE_URL = os.getenv('DATABASE_URL')
     MYSQL_URL = os.getenv('MYSQL_URL')
+
+    # Enhanced database URI configuration with debugging
+    print("=== Database Configuration Debug ===")
+    print(f"DATABASE_URL: {'Set' if DATABASE_URL else 'Not set'}")
+    print(f"MYSQL_URL: {'Set' if MYSQL_URL else 'Not set'}")
     
     if DATABASE_URL:
-        # Use explicitly set DATABASE_URL
-        if DATABASE_URL.startswith('mysql://'):
+        print("✓ Using DATABASE_URL from environment")
+        # Handle both postgresql:// and mysql:// URLs
+        if DATABASE_URL.startswith('postgresql://'):
+            print("🔍 Database type: PostgreSQL")
+            # If you need MySQL but got PostgreSQL, this will need adjustment
+            SQLALCHEMY_DATABASE_URI = DATABASE_URL
+        elif DATABASE_URL.startswith('mysql://'):
+            print("🔍 Database type: MySQL")
             SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
         else:
+            print(f"🔍 Database type: Other ({DATABASE_URL.split('://')[0] if '://' in DATABASE_URL else 'Unknown'})")
             SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    elif MYSQL_URL and MYSQL_URL.startswith('mysql://'):
-        # Use MYSQL_URL from Railway (private network)
-        SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+        
+        # Validate the URI isn't malformed
+        if ':@:' in SQLALCHEMY_DATABASE_URI or '@:/' in SQLALCHEMY_DATABASE_URI:
+            print("⚠️  WARNING: DATABASE_URL appears malformed - falling back to component build")
+            SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+            
+    elif MYSQL_URL:
+        print("✓ Using MYSQL_URL from environment")
+        if MYSQL_URL.startswith('mysql://'):
+            SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+        else:
+            SQLALCHEMY_DATABASE_URI = MYSQL_URL
+        
+        # Validate MYSQL_URL
+        if ':@:' in SQLALCHEMY_DATABASE_URI or '@:/' in SQLALCHEMY_DATABASE_URI:
+            print("⚠️  WARNING: MYSQL_URL appears malformed - falling back to component build")
+            SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
     else:
-        # Build from individual components (local development)
+        print("✓ Building database URI from individual components")
         SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+
+    # Final validation
+    if not SQLALCHEMY_DATABASE_URI or '://' not in SQLALCHEMY_DATABASE_URI:
+        print("❌ ERROR: No valid database URI configured!")
+        # Fallback to SQLite for emergency
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///fallback.db'
+        print("⚠️  Using SQLite fallback database")
+
+    # Hide password in debug output
+    debug_uri = SQLALCHEMY_DATABASE_URI
+    if '@' in debug_uri:
+        parts = debug_uri.split('@')
+        user_pass = parts[0].split('://')[-1]
+        if ':' in user_pass:
+            user = user_pass.split(':')[0]
+            debug_uri = debug_uri.replace(user_pass, f"{user}:****")
     
+    print(f"✓ Final Database URI: {debug_uri}")
+    print("=====================================")
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     

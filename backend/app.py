@@ -1,7 +1,6 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_login import LoginManager, current_user
-# FIXED IMPORT - use absolute import
-from config import config
+from .config import config
 from backend.models import db, User
 from datetime import datetime
 import os
@@ -75,30 +74,6 @@ def create_app(config_name=None):
     app.register_blueprint(quiz_bp, url_prefix='/quiz')
     app.register_blueprint(enrollment_bp, url_prefix='/enrollment')
     app.register_blueprint(progress_bp, url_prefix='/progress')
-    
-    # Add debug route to check database connection
-    @app.route('/debug-db')
-    def debug_db():
-        """Debug database configuration"""
-        db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
-        # Mask password for security
-        if '@' in db_uri:
-            parts = db_uri.split('@')
-            user_pass = parts[0].split('://')[-1]
-            if ':' in user_pass:
-                user = user_pass.split(':')[0]
-                masked_uri = db_uri.replace(user_pass, f"{user}:****")
-            else:
-                masked_uri = db_uri
-        else:
-            masked_uri = db_uri
-        
-        return {
-            'database_uri': masked_uri,
-            'mysql_url': os.getenv('MYSQL_URL'),
-            'railway_environment': os.getenv('RAILWAY_ENVIRONMENT'),
-            'config_used': config_name
-        }
     
     # Home route - redirects based on authentication
     @app.route('/')

@@ -9,31 +9,29 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     
     # Database Configuration - Support both Railway and local dev
-    # Railway provides MYSQLHOST, MYSQLUSER, etc.
     DB_HOST = os.getenv('MYSQLHOST') or os.getenv('DB_HOST', 'localhost')
     DB_USER = os.getenv('MYSQLUSER') or os.getenv('DB_USER', 'root')
     DB_PASSWORD = os.getenv('MYSQLPASSWORD') or os.getenv('DB_PASSWORD', '')
     DB_NAME = os.getenv('MYSQLDATABASE') or os.getenv('DB_NAME', 'elearning_db')
     DB_PORT = os.getenv('MYSQLPORT') or os.getenv('DB_PORT', '3306')
     
-    # SQLAlchemy Configuration
-    # Check for Railway's MYSQL_URL first, then build from components
+    # SQLAlchemy Configuration - SIMPLIFIED VERSION
     MYSQL_URL = os.getenv('MYSQL_URL')
     
-    # IMPORTANT: Exclude the public URL - we only want internal URLs
-    if MYSQL_URL and 'railway.internal' in MYSQL_URL:
-        # This is the internal URL - use it!
-        if MYSQL_URL.startswith('mysql://'):
+    # Simplified database configuration
+    if os.getenv('RAILWAY_ENVIRONMENT'):
+        # Use Railway's MYSQL_URL for production
+        if MYSQL_URL and MYSQL_URL.startswith('mysql://'):
             SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+            print("Using Railway MYSQL_URL for database connection")
         else:
-            SQLALCHEMY_DATABASE_URI = MYSQL_URL
-    elif MYSQL_URL and MYSQL_URL.startswith('mysql://') and 'railway.internal' not in MYSQL_URL:
-        # This is likely the public URL - ignore it and build from components
-        print("Warning: Detected public MYSQL_URL, using internal components instead")
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+            # Fallback to component-based connection
+            SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+            print("Using component-based database connection")
     else:
-        # Build from individual components (for local development or as fallback)
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+        # Local development
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        print("Using local development database")
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set to True for SQL debugging

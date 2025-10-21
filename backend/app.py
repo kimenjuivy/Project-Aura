@@ -8,9 +8,7 @@ import time
 
 def create_app(config_name=None):
     """Application factory pattern"""
-    # Automatically detect environment
     if config_name is None:
-        # Check if running on Railway
         if os.environ.get('RAILWAY_ENVIRONMENT'):
             config_name = 'production'
         else:
@@ -20,17 +18,14 @@ def create_app(config_name=None):
                 template_folder='../frontend/templates',
                 static_folder='../frontend/static')
    
-    # Load configuration
     app.config.from_object(config[config_name])
     
-    # Log which config is being used (helpful for debugging)
     print(f"Starting app with {config_name} configuration")
     
     # DEBUG: Print database connection info (hide password)
     print("=== Database Configuration ===")
     db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
     if '@' in db_uri:
-        # Mask password in logs
         parts = db_uri.split('@')
         user_pass = parts[0].split('://')[-1]
         if ':' in user_pass:
@@ -42,9 +37,8 @@ def create_app(config_name=None):
     else:
         print(f"Database URI: {db_uri}")
     
-    # Show which variables are set
     print(f"MYSQLHOST: {os.getenv('MYSQLHOST', 'Not set')}")
-    print(f"MYSQL_URL exists: {bool(os.getenv('MYSQL_URL'))}")
+    print(f"Using private network: {'mysql.railway.internal' in db_uri}")
     print("==============================")
     
     # Initialize extensions
@@ -75,12 +69,10 @@ def create_app(config_name=None):
     app.register_blueprint(enrollment_bp, url_prefix='/enrollment')
     app.register_blueprint(progress_bp, url_prefix='/progress')
     
-    # Home route - redirects based on authentication
     @app.route('/')
     def index():
         """Landing page - redirect to login or dashboard"""
         if current_user.is_authenticated:
-            # Redirect based on user role
             if current_user.role == 'student':
                 return redirect(url_for('course.student_dashboard'))
             elif current_user.role == 'instructor':
@@ -89,13 +81,11 @@ def create_app(config_name=None):
                 return redirect(url_for('course.browse_courses'))
         return render_template('index.html')
     
-    # Health check endpoint for Railway
     @app.route('/health')
     def health():
         """Health check endpoint"""
         return {'status': 'healthy', 'config': config_name}, 200
     
-    # Error handlers
     @app.errorhandler(404)
     def not_found_error(error):
         """Handle 404 errors"""
@@ -121,13 +111,11 @@ def create_app(config_name=None):
         except:
             return '<h1>403 - Forbidden</h1>', 403
     
-    # Context processor - makes variables available to all templates
     @app.context_processor
     def inject_now():
         """Inject current time into templates"""
         return {'now': datetime.utcnow()}
     
-    # Prevent caching in development
     @app.after_request
     def add_header(response):
         """Prevent caching in development"""
@@ -142,20 +130,18 @@ def create_app(config_name=None):
         max_retries = 5
         for attempt in range(max_retries):
             try:
-                # Create tables if they don't exist
                 db.create_all()
                 print("✓ Database tables created successfully")
                 break
             except Exception as e:
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff: 1, 2, 4, 8, 16 seconds
+                    wait_time = 2 ** attempt
                     print(f"✗ Database connection failed (attempt {attempt + 1}/{max_retries}): {e}")
                     print(f"  Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                 else:
                     print(f"✗ Failed to connect to database after {max_retries} attempts: {e}")
                     print("  App will start but database operations will fail.")
-                    # Don't crash the app, let it start and show error on first request
     
     return app
 

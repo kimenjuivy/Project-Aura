@@ -8,64 +8,73 @@ class Config:
     """Base configuration"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     
-    # Database Configuration - Support both Railway and local dev
-    DB_HOST = os.getenv('MYSQLHOST', 'localhost')
-    DB_USER = os.getenv('MYSQLUSER', 'root')
-    DB_PASSWORD = os.getenv('MYSQLPASSWORD', '')
-    DB_NAME = os.getenv('MYSQLDATABASE', 'elearning_db')
-    DB_PORT = os.getenv('MYSQLPORT', '3306')
+    # Database Configuration
+    # Priority: DATABASE_URL > MYSQL_URL > individual components
+    print("=== Database Configuration Debug ===")
     
-    # SQLAlchemy Configuration
-    # Priority: DATABASE_URL > MYSQL_URL > build from components
     DATABASE_URL = os.getenv('DATABASE_URL')
     MYSQL_URL = os.getenv('MYSQL_URL')
-
-    # Enhanced database URI configuration with debugging
-    print("=== Database Configuration Debug ===")
+    
     print(f"DATABASE_URL: {'Set' if DATABASE_URL else 'Not set'}")
     print(f"MYSQL_URL: {'Set' if MYSQL_URL else 'Not set'}")
     
-    if DATABASE_URL:
-        print("✓ Using DATABASE_URL from environment")
-        # Handle both postgresql:// and mysql:// URLs
-        if DATABASE_URL.startswith('postgresql://'):
-            print("🔍 Database type: PostgreSQL")
-            # If you need MySQL but got PostgreSQL, this will need adjustment
+    # Determine the database URI
+    SQLALCHEMY_DATABASE_URI = None
+    
+    if DATABASE_URL and '://' in DATABASE_URL:
+        # Check if it's a valid URL (not a template string)
+        if not DATABASE_URL.startswith('{{') and not DATABASE_URL.startswith('${'):
+            print("✓ Using DATABASE_URL from environment")
             SQLALCHEMY_DATABASE_URI = DATABASE_URL
-        elif DATABASE_URL.startswith('mysql://'):
-            print("🔍 Database type: MySQL")
-            SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
         else:
-            print(f"🔍 Database type: Other ({DATABASE_URL.split('://')[0] if '://' in DATABASE_URL else 'Unknown'})")
-            SQLALCHEMY_DATABASE_URI = DATABASE_URL
+            print(f"⚠️  DATABASE_URL is a template string: {DATABASE_URL}")
+            print("    This means the variable reference is incorrect!")
+    
+    # Fall back to MYSQL_URL
+    if not SQLALCHEMY_DATABASE_URI and MYSQL_URL and '://' in MYSQL_URL:
+        print("✓ Using MYSQL_URL (Railway private network)")
+        SQLALCHEMY_DATABASE_URI = MYSQL_URL
+    
+    # Build from Railway MySQL plugin variables (use MYSQL prefix, not DB prefix)
+    if not SQLALCHEMY_DATABASE_URI:
+        print("✓ Building from individual MySQL variables")
+        DB_HOST = os.getenv('MYSQLHOST', os.getenv('DB_HOST', 'localhost'))
+        DB_USER = os.getenv('MYSQLUSER', os.getenv('DB_USER', 'root'))
+        DB_PASSWORD = os.getenv('MYSQLPASSWORD', os.getenv('DB_PASSWORD', ''))
+        DB_NAME = os.getenv('MYSQLDATABASE', os.getenv('DB_NAME', 'elearning_db'))
+        DB_PORT = os.getenv('MYSQLPORT', os.getenv('DB_PORT', '3306'))
         
-        # Validate the URI isn't malformed
-        if ':@:' in SQLALCHEMY_DATABASE_URI or '@:/' in SQLALCHEMY_DATABASE_URI:
-            print("⚠️  WARNING: DATABASE_URL appears malformed - falling back to component build")
+        print(f"  Host: {DB_HOST}")
+        print(f"  Port: {DB_PORT}")
+        print(f"  Database: {DB_NAME}")
+        print(f"  User: {DB_USER}")
+        
+        if DB_HOST and DB_USER and DB_NAME:
             SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
-            
-    elif MYSQL_URL:
-        print("✓ Using MYSQL_URL from environment")
-        if MYSQL_URL.startswith('mysql://'):
-            SQLALCHEMY_DATABASE_URI = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
         else:
-            SQLALCHEMY_DATABASE_URI = MYSQL_URL
-        
-        # Validate MYSQL_URL
-        if ':@:' in SQLALCHEMY_DATABASE_URI or '@:/' in SQLALCHEMY_DATABASE_URI:
-            print("⚠️  WARNING: MYSQL_URL appears malformed - falling back to component build")
-            SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
-    else:
-        print("✓ Building database URI from individual components")
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
-
+            print("⚠️  Missing required database variables!")
+    
+    # Convert mysql:// to mysql+pymysql://
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('mysql://'):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('mysql://', 'mysql+pymysql://', 1)
+        print("✓ Converted to use PyMySQL driver")
+    
     # Final validation
     if not SQLALCHEMY_DATABASE_URI or '://' not in SQLALCHEMY_DATABASE_URI:
         print("❌ ERROR: No valid database URI configured!")
-        # Fallback to SQLite for emergency
+        print("⚠️  Falling back to SQLite (this will cause issues!)")
         SQLALCHEMY_DATABASE_URI = 'sqlite:///fallback.db'
-        print("⚠️  Using SQLite fallback database")
-
+    
+    # Check if using Railway internal network
+    is_using_private = 'railway.internal' in SQLALCHEMY_DATABASE_URI if SQLALCHEMY_DATABASE_URI else False
+    is_using_public = 'proxy.rlwy.net' in SQLALCHEMY_DATABASE_URI if SQLALCHEMY_DATABASE_URI else False
+    
+    if is_using_public:
+        print("⚠️  WARNING: Using PUBLIC endpoint - you will be charged egress fees!")
+        print("    Consider using railway.internal instead")
+    elif is_using_private:
+        print("✓ Using Railway private network (no egress fees)")
+    
     # Hide password in debug output
     debug_uri = SQLALCHEMY_DATABASE_URI
     if '@' in debug_uri:
@@ -81,16 +90,25 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     
-    # Connection pool settings for Railway
+    # Connection pool settings
+    # Build engine options dynamically based on database type
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,
         'pool_recycle': 300,
-        'pool_size': 10,
-        'max_overflow': 20,
-        'connect_args': {
-            'connect_timeout': 10
-        }
     }
+    
+    # Only add MySQL-specific options if not using SQLite
+    if SQLALCHEMY_DATABASE_URI and not SQLALCHEMY_DATABASE_URI.startswith('sqlite'):
+        SQLALCHEMY_ENGINE_OPTIONS.update({
+            'pool_size': 10,
+            'max_overflow': 20,
+            'connect_args': {
+                'connect_timeout': 10
+            }
+        })
+        print("✓ MySQL connection pool configured")
+    else:
+        print("⚠️  Using SQLite - limited connection pool options")
     
     # Session Configuration
     PERMANENT_SESSION_LIFETIME = 3600
